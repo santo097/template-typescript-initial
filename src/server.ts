@@ -1,14 +1,31 @@
-import dotenv from 'dotenv';
-import express from 'express';
+import express, {Request,Response} from 'express';
+import { Config } from './shared/infrastructure/config';
+import { configInstance } from './shared/infrastructure/dependencies';
 
-dotenv.config();
-const server = express();
-const port = process.env.SERVER_PORT;
 
-server.get('/', (req,res) =>{
-    res.send('The sedulous hyena ate');
-});
+class Server{
+    private server: express.Application;
+    private config: Config;
 
-server.listen(port, () =>{
-    console.log('Server on port:'+ port);
-});
+    constructor(config:Config){
+        this.config = config;
+        this.server = express();
+        this.setupRoutes();
+    }
+
+    private setupRoutes(): void {
+        this.server.get('/', (req:Request, res:Response) =>{
+            res.send('Ruta principal');
+        });
+    }
+
+    startServer():void{
+        this.server.listen(this.config.getPort(), () =>{
+            console.log(`Server on port: ${this.config.getPort()}`);
+        });
+    }
+}
+
+const server = new Server(configInstance);
+
+server.startServer();
